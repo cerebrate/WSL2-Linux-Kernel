@@ -1,0 +1,90 @@
+From c1e9363f7812fd8d0f0bd0069d78bcb57f7d0a6b Mon Sep 17 00:00:00 2001
+From: Alistair Young <avatar@arkane-systems.net>
+Date: Mon, 5 Sep 2022 00:09:22 -0500
+Subject: [PATCH] deb-pkg patches
+
+---
+ scripts/Makefile.package | 4 +++-
+ scripts/package/builddeb | 7 ++++---
+ scripts/package/mkdebian | 7 ++++---
+ 3 files changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/scripts/Makefile.package b/scripts/Makefile.package
+index b74c65284fb2..67eb6e5d2818 100644
+--- a/scripts/Makefile.package
++++ b/scripts/Makefile.package
+@@ -24,7 +24,9 @@ include $(srctree)/scripts/Kbuild.include
+ # but the binrpm-pkg target can; for some reason O= gets ignored.
+ 
+ # Remove hyphens since they have special meaning in RPM filenames
+-KERNELPATH := kernel-$(subst -,_,$(KERNELRELEASE))
++KERNELRELEASELC = $(shell echo $(KERNELRELEASE) | tr '[:upper:]' '[:lower:]')
++
++KERNELPATH := kernel-$(subst -,_,$(KERNELRELEASELC))
+ KDEB_SOURCENAME ?= linux-upstream
+ KBUILD_PKG_ROOTCMD ?="fakeroot -u"
+ export KDEB_SOURCENAME
+diff --git a/scripts/package/builddeb b/scripts/package/builddeb
+index 91a502bb97e8..9d7fc917d19c 100755
+--- a/scripts/package/builddeb
++++ b/scripts/package/builddeb
+@@ -107,13 +107,14 @@ deploy_libc_headers () {
+ }
+ 
+ version=$KERNELRELEASE
++pkgversion=$(echo $KERNELRELEASE | tr '[:upper:]' '[:lower:]')
+ tmpdir=debian/linux-image
+ dbg_dir=debian/linux-image-dbg
+-packagename=linux-image-$version
++packagename=linux-image-$pkgversion
+ dbg_packagename=$packagename-dbg
+ 
+ if [ "$ARCH" = "um" ] ; then
+-	packagename=user-mode-linux-$version
++	packagename=user-mode-linux-$pkgversion
+ fi
+ 
+ # Not all arches have the same installed path in debian
+@@ -211,7 +212,7 @@ done
+ if [ "$ARCH" != "um" ]; then
+ 	if is_enabled CONFIG_MODULES; then
+ 		deploy_kernel_headers debian/linux-headers
+-		create_package linux-headers-$version debian/linux-headers
++		create_package linux-headers-$pkgversion debian/linux-headers
+ 	fi
+ 
+ 	deploy_libc_headers debian/linux-libc-dev
+diff --git a/scripts/package/mkdebian b/scripts/package/mkdebian
+index 60a2a63a5e90..1b32582c93c6 100755
+--- a/scripts/package/mkdebian
++++ b/scripts/package/mkdebian
+@@ -85,7 +85,8 @@ set_debarch() {
+ }
+ 
+ # Some variables and settings used throughout the script
+-version=$KERNELRELEASE
++version=$(echo $KERNELRELEASE | tr '[:upper:]' '[:lower:]')
++mkversion=$KERNELRELEASE
+ if [ -n "$KDEB_PKGVERSION" ]; then
+ 	packageversion=$KDEB_PKGVERSION
+ 	revision=${packageversion##*-}
+@@ -225,14 +226,14 @@ srctree ?= .
+ 
+ build-indep:
+ build-arch:
+-	\$(MAKE) KERNELRELEASE=${version} ARCH=${ARCH} \
++	\$(MAKE) KERNELRELEASE=${mkversion} ARCH=${ARCH} \
+ 	KBUILD_BUILD_VERSION=${revision} -f \$(srctree)/Makefile
+ 
+ build: build-arch
+ 
+ binary-indep:
+ binary-arch: build-arch
+-	\$(MAKE) KERNELRELEASE=${version} ARCH=${ARCH} \
++	\$(MAKE) KERNELRELEASE=${mkversion} ARCH=${ARCH} \
+ 	KBUILD_BUILD_VERSION=${revision} -f \$(srctree)/Makefile intdeb-pkg
+ 
+ clean:
+-- 
+2.37.2
+

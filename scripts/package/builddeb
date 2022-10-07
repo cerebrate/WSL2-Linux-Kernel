@@ -107,13 +107,14 @@ deploy_libc_headers () {
 }
 
 version=$KERNELRELEASE
+pkgversion=$(echo $KERNELRELEASE | tr '[:upper:]' '[:lower:]')
 tmpdir=debian/linux-image
 dbg_dir=debian/linux-image-dbg
-packagename=linux-image-$version
+packagename=linux-image-$pkgversion
 dbg_packagename=$packagename-dbg
 
 if [ "$ARCH" = "um" ] ; then
-	packagename=user-mode-linux-$version
+	packagename=user-mode-linux-$pkgversion
 fi
 
 # Not all arches have the same installed path in debian
@@ -211,7 +212,7 @@ done
 if [ "$ARCH" != "um" ]; then
 	if is_enabled CONFIG_MODULES; then
 		deploy_kernel_headers debian/linux-headers
-		create_package linux-headers-$version debian/linux-headers
+		create_package linux-headers-$pkgversion debian/linux-headers
 	fi
 
 	deploy_libc_headers debian/linux-libc-dev

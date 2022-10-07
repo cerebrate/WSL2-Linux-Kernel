@@ -85,7 +85,8 @@ set_debarch() {
 }
 
 # Some variables and settings used throughout the script
-version=$KERNELRELEASE
+version=$(echo $KERNELRELEASE | tr '[:upper:]' '[:lower:]')
+mkversion=$KERNELRELEASE
 if [ -n "$KDEB_PKGVERSION" ]; then
 	packageversion=$KDEB_PKGVERSION
 	revision=${packageversion##*-}
@@ -225,14 +226,14 @@ srctree ?= .
 
 build-indep:
 build-arch:
-	\$(MAKE) KERNELRELEASE=${version} ARCH=${ARCH} \
+	\$(MAKE) KERNELRELEASE=${mkversion} ARCH=${ARCH} \
 	KBUILD_BUILD_VERSION=${revision} -f \$(srctree)/Makefile
 
 build: build-arch
 
 binary-indep:
 binary-arch: build-arch
-	\$(MAKE) KERNELRELEASE=${version} ARCH=${ARCH} \
+	\$(MAKE) KERNELRELEASE=${mkversion} ARCH=${ARCH} \
 	KBUILD_BUILD_VERSION=${revision} -f \$(srctree)/Makefile intdeb-pkg
 
 clean:

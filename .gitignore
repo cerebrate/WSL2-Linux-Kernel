@@ -36,7 +36,7 @@
 *.mod.c
 *.o
 *.o.*
-# *.patch
+*.patch
 *.s
 *.so
 *.so.dbg
@@ -161,3 +161,7 @@ x509.genkey
 
 # Documentation toolchain
 sphinx_*/
+
+## Special Cerebrate build unexclusions
+!.config
+!/Cerebrate/*.patch

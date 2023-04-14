@@ -24,7 +24,9 @@ include $(srctree)/scripts/Kbuild.include
 # but the binrpm-pkg target can; for some reason O= gets ignored.
 
 # Remove hyphens since they have special meaning in RPM filenames
-KERNELPATH := kernel-$(subst -,_,$(KERNELRELEASE))
+KERNELRELEASELC = $(shell echo $(KERNELRELEASE) | tr '[:upper:]' '[:lower:]')
+
+KERNELPATH := kernel-$(subst -,_,$(KERNELRELEASELC))
 KDEB_SOURCENAME ?= linux-upstream
 KBUILD_PKG_ROOTCMD ?="fakeroot -u"
 export KDEB_SOURCENAME

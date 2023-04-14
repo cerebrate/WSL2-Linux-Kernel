@@ -69,6 +69,7 @@ modules.order
 /modules.builtin
 /modules.builtin.modinfo
 /modules.nsdeps
+/localversion
 
 #
 # RPM spec file (make rpm-pkg)
